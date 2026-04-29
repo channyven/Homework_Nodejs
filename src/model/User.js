@@ -1,7 +1,7 @@
 class User {
   static users = [
-    { id: 1, name: "Vicheka", email: "vicheka@gmail.com" },
-    { id: 2, name: "Miki", email: "miki@gmail.com" },
+    { id: 1, name: "Channy", email: "channy.ven@gmail.com" },
+    { id: 2, name: "Niki", email: "niki@gmail.com" },
   ];
 
   static async findAll() {
