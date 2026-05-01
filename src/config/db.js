@@ -1,17 +1,26 @@
-class Database {
-  static #isConnected = false;
+import mysql from 'mysql2/promise';
 
-  static async connect() {
-    try {
-      if (this.#isConnected) return;
-      await Promise.resolve();
-      this.#isConnected = true;
-      console.log("Database connected");
-    } catch (error) {
-      console.error("Database connection failed:", error.message);
-      throw error;
-    }
+const db = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'channy-nodejs',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+
+// Test connection
+const testConnection = async () => {
+  try {
+    const connection = await db.getConnection();
+    console.log('✅ Connected to MySQL database!');
+    connection.release();
+  } catch (err) {
+    console.log('❌ Error connecting to MySQL:', err.message);
   }
-}
+};
 
-export default Database;
+testConnection();
+
+export default db;

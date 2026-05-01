@@ -1,40 +1,95 @@
-import User from "../models/User.js";
+import User from '../models/User.js';
+import BaseController from './BaseController.js';
 
-class UserController {
-  static async getUsers(req, res) {
+export default class UserController extends BaseController {
+
+  async getUsers(req, res) {
     try {
       const users = await User.findAll();
-      const [firstUser, ...otherUsers] = users;
-      const allUsers = firstUser ? [firstUser, ...otherUsers] : [];
-
-      return res.status(200).json({
-        total: allUsers.length,
-        users: allUsers,
-      });
+      this.success(res, users, 'Users fetched successfully');
     } catch (error) {
-      return res.status(500).json({ message: error.message });
+      this.error(res, error.message, 500);
     }
   }
 
-  static async create(req, res) {
+  async getUserById(req, res) {
     try {
-      const { name, email, ...extraFields } = req.body ?? {};
+      const { id } = req.params;
+      const user = await User.findById(id);
 
-      if (!name || !email) {
-        return res.status(400).json({
-          message: "name and email are required",
-        });
+      if (!user) {
+        return this.error(res, 'User not found', 404);
       }
 
-      const newUser = await User.create({ name, email, ...extraFields });
-      return res.status(201).json({
-        message: "User created successfully",
-        user: newUser,
-      });
+      this.success(res, user, 'User fetched successfully');
     } catch (error) {
-      return res.status(500).json({ message: error.message });
+      this.error(res, error.message, 500);
+    }
+  }
+
+  async createUser(req, res) {
+    try {
+      const { name, age } = req.body;
+
+      if (!name || age === undefined) {
+        return this.error(res, 'Name and age are required', 400);
+      }
+
+      if (age < 0 || age > 150) {
+        return this.error(res, 'Age must be between 0 and 150', 400);
+      }
+
+      const user = await User.create({ name, age });
+      this.success(res, user, 'User created successfully');
+    } catch (error) {
+      this.error(res, error.message, 500);
+    }
+  }
+
+  async updateUser(req, res) {
+    try {
+      const { id } = req.params;
+      const { name, age } = req.body;
+
+      if (name === undefined && age === undefined) {
+        return this.error(res, 'At least one field (name or age) is required for update', 400);
+      }
+
+      const existingUser = await User.findById(id);
+      if (!existingUser) {
+        return this.error(res, 'User not found', 404);
+      }
+
+      const updateData = {
+        name: name !== undefined ? name : existingUser.name,
+        age: age !== undefined ? age : existingUser.age
+      };
+
+      const updatedUser = await User.update(id, updateData);
+      this.success(res, updatedUser, 'User updated successfully');
+    } catch (error) {
+      this.error(res, error.message, 500);
+    }
+  }
+
+  async deleteUser(req, res) {
+    try {
+      const { id } = req.params;
+
+      const existingUser = await User.findById(id);
+      if (!existingUser) {
+        return this.error(res, 'User not found', 404);
+      }
+
+      const deleted = await User.delete(id);
+
+      if (deleted) {
+        this.success(res, null, 'User deleted successfully');
+      } else {
+        this.error(res, 'User not found', 404);
+      }
+    } catch (error) {
+      this.error(res, error.message, 500);
     }
   }
 }
-
-export default UserController;

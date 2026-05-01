@@ -1,27 +1,66 @@
-class User {
-  static users = [
-    { id: 1, name: "Channy", email: "channy.ven@gmail.com" },
-    { id: 2, name: "Niki", email: "niki@gmail.com" },
-  ];
+import db from '../config/db.js';
+import BaseModel from './BaseModel.js';
 
-  static async findAll() {
-    return [...this.users];
+class User extends BaseModel {
+  constructor(id, name, age) {
+    super(name, age);
+    this.id = id;
   }
 
-  static async create(userData = {}) {
-    const { name, email, ...extraFields } = userData;
-    const [lastUser] = this.users.slice(-1);
-    const nextId = lastUser ? lastUser.id + 1 : 1;
+  static async findAll() {
+    try {
+      const [rows] = await db.query('SELECT * FROM users');
+      return rows.map(row => new User(row.id, row.name, row.age));
+    } catch (error) {
+      throw new Error(`Error fetching users: ${error.message}`);
+    }
+  }
 
-    const newUser = {
-      id: nextId,
-      name,
-      email,
-      ...extraFields,
-    };
+  static async findById(id) {
+    try {
+      const [rows] = await db.query('SELECT * FROM users WHERE id = ?', [id]);
+      if (rows.length === 0) return null;
+      const user = rows[0];
+      return new User(user.id, user.name, user.age);
+    } catch (error) {
+      throw new Error(`Error finding user: ${error.message}`);
+    }
+  }
 
-    this.users = [...this.users, newUser];
-    return newUser;
+  static async create(userData) {
+    const { name, age } = userData;
+    try {
+      const [result] = await db.query(
+        'INSERT INTO users (name, age) VALUES (?, ?)',
+        [name, age]
+      );
+      return new User(result.insertId, name, age);
+    } catch (error) {
+      throw new Error(`Error creating user: ${error.message}`);
+    }
+  }
+
+  static async update(id, userData) {
+    const { name, age } = userData;
+    try {
+      const [result] = await db.query(
+        'UPDATE users SET name = ?, age = ? WHERE id = ?',
+        [name, age, id]
+      );
+      if (result.affectedRows === 0) return null;
+      return new User(id, name, age);
+    } catch (error) {
+      throw new Error(`Error updating user: ${error.message}`);
+    }
+  }
+
+  static async delete(id) {
+    try {
+      const [result] = await db.query('DELETE FROM users WHERE id = ?', [id]);
+      return result.affectedRows > 0;
+    } catch (error) {
+      throw new Error(`Error deleting user: ${error.message}`);
+    }
   }
 }
 
