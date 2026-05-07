@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise';
 
-const db = mysql.createPool({
+const db = mysql.createPool({   //✅ Connection Pool is a កន្លែងរក្សា database connections,improve performance
   host: 'localhost',
   user: 'root',
   password: '',

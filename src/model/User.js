@@ -1,16 +1,16 @@
-import db from '../config/db.js';
-import BaseModel from './BaseModel.js';
+import db from '../config/db.js';         //យក database connection មកប្រើ
+import BaseModel from './BaseModel.js';   //យក Parent Class មកប្រើ
 
-class User extends BaseModel {
+class User extends BaseModel {     //✅ Inheritance : User ជា Child Class, BaseModel ជា Parent Class
   constructor(id, name, age) {
-    super(name, age);
-    this.id = id;
+    super(name, age);             //នេះហៅ constructor របស់ Parent Class (BaseModel)
+    this.id = id;         //បន្ថែម property id
   }
 
-  static async findAll() {
+  static async findAll() {         //✅ ទាញ users ទាំងអស់/ static it mean:អាច call បានដោយមិនចាំបាច់ new object
     try {
-      const [rows] = await db.query('SELECT * FROM users');
-      return rows.map(row => new User(row.id, row.name, row.age));
+      const [rows] = await db.query('SELECT * FROM users');//ទាញ data ទាំងអស់ពី table users
+      return rows.map(row => new User(row.id, row.name, row.age)); //បម្លែង database rows ➜ User Objects
     } catch (error) {
       throw new Error(`Error fetching users: ${error.message}`);
     }
@@ -28,13 +28,13 @@ class User extends BaseModel {
   }
 
   static async create(userData) {
-    const { name, age } = userData;
+    const { name, age } = userData;   //យក values ចេញពី object
     try {
       const [result] = await db.query(
-        'INSERT INTO users (name, age) VALUES (?, ?)',
+        'INSERT INTO users (name, age) VALUES (?, ?)',  //បញ្ចូល data ទៅ database
         [name, age]
       );
-      return new User(result.insertId, name, age);
+      return new User(result.insertId, name, age);    //result.insertID: id ដែល database បង្កើតថ្មី
     } catch (error) {
       throw new Error(`Error creating user: ${error.message}`);
     }
