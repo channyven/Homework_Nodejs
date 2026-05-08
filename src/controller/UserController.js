@@ -17,7 +17,7 @@ export default class UserController extends BaseController {       //បង្�
       const { id } = req.params;
       const user = await User.findById(id);
 
-      if (!user) {       //❌ បើ user អត់មាន
+      if (!user) {      
         return this.error(res, 'User not found', 404);
       }
 
@@ -27,7 +27,7 @@ export default class UserController extends BaseController {       //បង្�
     }
   }
 
-  async createUser(req, res) {         //ប្រើសម្រាប់:✅ បង្កើត user ថ្មី
+  async createUser(req, res) {         //ប្រើសម្រាប់:បង្កើត user ថ្មី
 
     try {
       const { name, age } = req.body;
@@ -47,7 +47,7 @@ export default class UserController extends BaseController {       //បង្�
     }
   }
 
-  async updateUser(req, res) {       //✅ កែប្រែ user
+  async updateUser(req, res) {       //update user
     try {
       const { id } = req.params;
       const { name, age } = req.body;
@@ -63,7 +63,7 @@ export default class UserController extends BaseController {       //បង្�
 
       const updateData = {
         name: name !== undefined ? name : existingUser.name,
-        age: age !== undefined ? age : existingUser.age    //3 nes keu jea ✅ Ternary Operator it mean: បើមាន name ថ្មី ➜ ប្រើថ្មី, បើអត់ ➜ ប្រើចាស់
+        age: age !== undefined ? age : existingUser.age    //3 is a Ternary Operator it mean: បើមាន name ថ្មី ➜ ប្រើថ្មី, បើអត់ ➜ ប្រើចាស់
       };
 
       const updatedUser = await User.update(id, updateData);
@@ -73,7 +73,7 @@ export default class UserController extends BaseController {       //បង្�
     }
   }
 
-  async deleteUser(req, res) {     //✅ លុប user
+  async deleteUser(req, res) {     //delete user
     try {
       const { id } = req.params;
 
